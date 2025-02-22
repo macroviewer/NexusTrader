@@ -29,3 +29,6 @@ USDT_AMOUNT = 500
 
 # the minimum volume of the asset
 MIN_VOLUME = 1000000
+
+# the number of bars to loop back
+LOOP_BACK_BARS = 96

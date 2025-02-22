@@ -50,6 +50,7 @@ class Strategy:
 
         self._initialized = False
         self._scheduler = AsyncIOScheduler()
+        self.clock = LiveClock()
 
     def _init_core(
         self,
@@ -65,7 +66,6 @@ class Strategy:
             return
 
         self.cache = cache
-        self.clock = LiveClock()
         self._ems = ems
         self._task_manager = task_manager
         self._msgbus = msgbus
