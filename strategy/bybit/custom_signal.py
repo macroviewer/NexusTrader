@@ -13,7 +13,7 @@ from nexustrader.engine import Engine
 from nexustrader.core.entity import RateLimit, DataReady
 from collections import defaultdict
 
-SpdLog.initialize(level="DEBUG", std_level="DEBUG", production_mode=True)
+SpdLog.initialize(level="INFO", std_level="ERROR", production_mode=True)
 
 BYBIT_API_KEY = settings.BYBIT.ACCOUNT1.API_KEY
 BYBIT_SECRET = settings.BYBIT.ACCOUNT1.SECRET
@@ -26,9 +26,9 @@ socket.setsockopt(zmq.SUBSCRIBE, b"")
 class Demo(Strategy):
     def __init__(self):
         super().__init__()
-        self.symbols = ["BTCUSDT-PERP.BYBIT"]
+        self.symbols = ["LDOUSDT-PERP.BYBIT"]
         self.signal = True
-        self.multiplier = 0.1
+        self.multiplier = 1
         self.data_ready = DataReady(symbols=self.symbols)
         self.prev_target = defaultdict(Decimal)
         self.orders = {}
@@ -41,20 +41,23 @@ class Demo(Strategy):
     
     def cal_diff(self, symbol, target_position) -> Decimal:
         """
-        target_position: 10, current_position: 0, diff: 10
+        target_position: 10, current_position: 0, diff: 10 reduce_only: false
         target_position: 10, current_position: 10, diff: 0
         target_position: 10, current_position: -10, diff: 20
-        target_position: 10, current_position: 20, diff: -10
+        target_position: 10, current_position: 20, diff: -10 reduce_only: true
         target_position: -10, current_position: -20, diff: 10
         """
         position = self.cache.get_position(symbol).value_or(None)
         current_amount = position.signed_amount if position else Decimal('0')
         diff = target_position - current_amount
+        
+        reduce_only = False
 
         if diff != 0:
-            self.log.info(f"symbol: {symbol}, current {current_amount} -> target {target_position}")
-            
-        return diff
+            if abs(current_amount) > abs(target_position) and current_amount * target_position >= 0:
+                reduce_only = True
+            self.log.info(f"symbol: {symbol}, current {current_amount} -> target {target_position}, reduce_only: {reduce_only}")
+        return diff, reduce_only
     
         
     def on_custom_signal(self, signal):
@@ -89,7 +92,7 @@ class Demo(Strategy):
                         self.log.info(f"symbol: {symbol}, canceled {uuid}, prev_target: {self.prev_target[symbol]} -> new_target: {target_position}")
                         uuid = None
                     else:
-                        self.log.info(f"symbol: {symbol}, target not changed, skip")
+                        self.log.info(f"symbol: {symbol}, target not changed, skip, prev_target: {self.prev_target[symbol]}, new_target: {target_position}")
                 else:
                     if is_failed:
                         self.log.info(f"symbol: {symbol}, order {uuid} failed")
@@ -97,7 +100,7 @@ class Demo(Strategy):
                 
             
             if uuid is None:
-                diff = self.cal_diff(symbol, target_position)
+                diff, reduce_only = self.cal_diff(symbol, target_position)
                 if diff != 0:
                     uuid = self.create_twap(
                         symbol=symbol,
@@ -106,6 +109,7 @@ class Demo(Strategy):
                         duration=65,
                         wait=5,
                         account_type=BybitAccountType.UNIFIED_TESTNET, # recommend to specify the account type
+                        reduce_only=reduce_only,
                     )
                     self.orders[symbol] = uuid
             
