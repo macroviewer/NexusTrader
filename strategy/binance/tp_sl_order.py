@@ -26,22 +26,16 @@ class Demo(Strategy):
 
     def on_start(self):
         self.subscribe_bookl1(symbols=["BTCUSDT-PERP.BINANCE"])
+        self.schedule(self.query_position, trigger="interval", seconds=1)
+    
+    def query_position(self):
+        positions_dict = self.cache.get_all_positions(exchange=ExchangeType.BINANCE)
         
-        end_time = self.clock.timestamp_ms()
-        klines = self.request_klines(
-            symbol="BTCUSDT-PERP.BINANCE",
-            account_type=BinanceAccountType.USD_M_FUTURE_TESTNET,
-            interval=KlineInterval.MINUTE_15,
-            limit=24 * 60 / 15,
-            end_time=end_time,
-        )
-        close_price = [kline.close for kline in klines]
-        print(f"max: {max(close_price)}, min: {min(close_price)}")
+        pos = positions_dict["BTCUSDT-PERP.BINANCE"]
         
-    def query_order(self):
-        if self.order_id:   
-            order = self.cache.get_order(self.order_id).unwrap()
-            print(order, "\n")
+        print(pos.amount, pos.symbol, pos.side, type(pos.amount))
+            
+           
         
     def on_canceled_order(self, order: Order):
         print(order, "\n")
@@ -62,8 +56,19 @@ class Demo(Strategy):
         print(order, "\n")
 
     def on_bookl1(self, bookl1: BookL1):
-        print(bookl1, "\n")
-
+        if self.signal:
+            self.create_adp_maker(
+                symbol=bookl1.symbol,
+                side=OrderSide.BUY,
+                amount=0.002,
+                duration=10,
+                wait=8,
+                trigger_tp_ratio=0.1,
+                trigger_sl_ratio=0.1,
+                sl_tp_duration=10,
+                account_type=BinanceAccountType.USD_M_FUTURE_TESTNET,
+            )
+            self.signal = False
 
 config = Config(
     strategy_id="tp_sl_order",

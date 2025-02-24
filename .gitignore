@@ -29,3 +29,4 @@ example_test/
 .python-version
 ecosystem.config.js
 settings.toml
+*.js

@@ -524,7 +524,7 @@ class ExecutionManagementSystem(ABC):
                 algo_order.status = AlgoOrderStatus.FAILED
                 self._cache._order_status_update(algo_order)
                 self._log.error(
-                    f"ADAPTIVE MAKER ORDER FAILED: symbol: {symbol}, side: {open_side}, uuid: {adp_maker_order_uuid}"
+                    f"ADAPTIVE MAKER ORDER FAILED [MIN FILTER]: symbol: {symbol}, side: {open_side}, uuid: {adp_maker_order_uuid}"
                 )
                 return
         try:
@@ -617,9 +617,8 @@ class ExecutionManagementSystem(ABC):
                             instrument_id=instrument_id,
                             submit_type=SubmitType.CREATE,
                             side=close_side,
-                            type=OrderType.LIMIT,
+                            type=OrderType.MARKET,
                             amount=open_filled,
-                            price=self._cal_limit_order_price(symbol, close_side, market),
                             kwargs={"reduce_only": True},
                         ),
                         account_type=account_type,

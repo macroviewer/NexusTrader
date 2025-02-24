@@ -1,6 +1,7 @@
+[BNC_NEEDLE]
 # the ratio trigger the take profit or stop loss
-TRIGGER_TP_RATIO = 0.0025
-TRIGGER_SL_RATIO = 0.006
+TRIGGER_TP_RATIO = 0.05
+TRIGGER_SL_RATIO = 0.025
 
 # the duration of the open trade and close trade (in seconds)
 DURATION = 10
@@ -10,7 +11,7 @@ DURATION = 10
 WAIT = 8
 
 # the duration of the stop loss or take profit (in seconds)
-SL_TP_DURATION = 300
+SL_TP_DURATION = 860
 
 # the rate of the needle body
 K_NEEDLE_BODY_RATE = 1.3
@@ -19,16 +20,49 @@ K_NEEDLE_BODY_RATE = 1.3
 K_MIN_NEEDLE_RATE = 0.25
 
 # the return of the needle
-K_ABS_RETURN = 0.03
+K_ABS_RETURN = 0.015
 
 # the ratio of the asset
-ASSET_RATIO = 0.2
+ASSET_RATIO = 0.6
 
 # the amount of USDT, the total investment = ASSET_RATIO * USDT_AMOUNT
-USDT_AMOUNT = 500
+USDT_AMOUNT = 250
 
 # the minimum volume of the asset
-MIN_VOLUME = 1000000
+MIN_VOLUME = 70000
 
 # the number of bars to loop back
 LOOP_BACK_BARS = 96
+
+[BNC_MEAN_REVERSION]
+# the ratio trigger the take profit or stop loss
+TRIGGER_TP_RATIO = 0.08
+TRIGGER_SL_RATIO = 0.027
+
+# the duration of the open trade and close trade (in seconds)
+DURATION = 10
+
+# the wait time of the maker order (in seconds)
+# no longer than DURATION
+WAIT = 8
+
+# the duration of the stop loss or take profit (in seconds)
+SL_TP_DURATION = 860
+
+# the number of quantile
+N_QUANTILE = 3
+
+# the number of sigma
+N_SIGMA = 1
+
+# the ratio of the asset
+ASSET_RATIO = 0.6
+
+# the amount of USDT, the total investment = ASSET_RATIO * USDT_AMOUNT
+USDT_AMOUNT = 200
+
+# the minimum volume of the asset
+MIN_VOLUME = 70000
+
+# the rolling window size of the return
+WINDOW_SIZE = 100
