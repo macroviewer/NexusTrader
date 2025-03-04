@@ -101,7 +101,7 @@ class Kline(Struct, gc=False, kw_only=True):
     low: float
     close: float
     volume: float
-    volume_quote: float | None = None
+    quote_volume: float
     start: int
     timestamp: int
     confirm: bool
