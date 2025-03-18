@@ -6,14 +6,13 @@ from nexustrader.constants import KlineInterval
 from nexustrader.exchange.okx import OkxAccountType
 from nexustrader.schema import Kline
 from nexustrader.engine import Engine
+from nexustrader.core.log import SpdLog
 
-
+SpdLog.initialize(level="DEBUG", std_level="ERROR", production_mode=True)
 
 OKX_API_KEY = settings.OKX.DEMO_1.API_KEY
 OKX_SECRET = settings.OKX.DEMO_1.SECRET
 OKX_PASSPHRASE = settings.OKX.DEMO_1.PASSPHRASE
-
-
 
 class Demo(Strategy):
     def __init__(self):
@@ -21,7 +20,9 @@ class Demo(Strategy):
         self.signal = True
         
     def on_start(self):
-        self.subscribe_kline(symbols=["BTCUSDT.OKX"], interval=KlineInterval.MINUTE_1)
+        symbols = self.linear_info(exchange=ExchangeType.OKX, quote="USDT")
+        self.subscribe_bookl1(symbols=symbols)
+        self.subscribe_kline(symbols=symbols, interval=KlineInterval.MINUTE_1)
     
     def on_kline(self, kline: Kline):
         print(kline)
