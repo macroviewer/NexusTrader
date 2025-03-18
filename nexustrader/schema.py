@@ -101,6 +101,7 @@ class Kline(Struct, gc=False, kw_only=True):
     low: float
     close: float
     volume: float
+    taker_volume: float | None = None # only for binance
     quote_volume: float | None = None # only for binance and okx
     taker_quote_volume: float | None = None # only for binance
     start: int

@@ -904,6 +904,26 @@ class ExecutionManagementSystem(ABC):
             self._log.info(
                 f"TWAP ORDER CANCELLED: symbol: {symbol}, side: {side}, uuid: {twap_uuid}"
             )
+    
+    async def _create_adp_maker_order(
+        self, order_submit: OrderSubmit, account_type: AccountType
+    ):
+        """
+        Create an adp maker order
+        """
+        uuid = order_submit.uuid
+        self._task_manager.create_task(
+            self._adp_maker_order(order_submit, account_type), name=uuid
+        )
+
+    async def _cancel_adp_maker_order(
+        self, order_submit: OrderSubmit, account_type: AccountType
+    ):
+        """
+        Cancel an adp maker order
+        """
+        uuid = order_submit.uuid
+        self._task_manager.cancel_task(uuid)
 
     async def _create_twap_order(
         self, order_submit: OrderSubmit, account_type: AccountType

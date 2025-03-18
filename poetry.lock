@@ -2096,6 +2096,22 @@ tornado = "*"
 zict = "*"
 
 [[package]]
+name = "ta-lib"
+version = "0.6.3"
+description = "Python wrapper for TA-Lib"
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
+files = [
+    {file = "ta_lib-0.6.3.tar.gz", hash = "sha256:0c628db09b3fab6e5c26979e608b674e7aecc10359c82ba8d53f729767a856ac"},
+]
+
+[package.dependencies]
+numpy = "*"
+setuptools = "*"
+
+[[package]]
 name = "tenacity"
 version = "9.0.0"
 description = "Retry code until it succeeds"
@@ -2417,4 +2433,4 @@ pyzmq = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.13"
-content-hash = "0ebe36d3853b16dfbd7c115bc75deaeac5a8fb5ac5b1e56dcd7919c99c17b186"
+content-hash = "e8ddcd1699a7c3d3fc29a13dd11b15dfd03c2a6f479dfc4ea4385bcf1ea64bcc"
