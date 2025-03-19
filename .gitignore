@@ -31,4 +31,3 @@ ecosystem.config.js
 settings.toml
 *.js
 error_df/
-run_pm2.sh
