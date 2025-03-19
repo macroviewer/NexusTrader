@@ -22,9 +22,11 @@ class BinanceWSClient(WSClient):
             limiter=AsyncLimiter(max_rate=4, time_period=1),
             handler=handler,
             task_manager=task_manager,
+            ping_idle_timeout=6,
+            ping_reply_timeout=3,
         )
     
-    async def _send_payload(self, params: List[str], chunk_size: int = 100):
+    async def _send_payload(self, params: List[str], chunk_size: int = 50):
         # Split params into chunks of 100 if length exceeds 100
         params_chunks = [
             params[i:i + chunk_size] 
