@@ -3,7 +3,7 @@ import orjson
 from abc import ABC, abstractmethod
 from typing import Any
 from typing import Callable, Literal
-
+import logging
 
 from aiolimiter import AsyncLimiter
 from nexustrader.core.log import SpdLog
@@ -15,8 +15,19 @@ from picows import (
     WSListener,
     WSMsgType,
     WSAutoPingStrategy,
+    PICOWS_DEBUG_LL,
 )
 from nexustrader.core.nautilius_core import LiveClock
+
+file_handler = logging.FileHandler('.log/picows.log')
+file_handler.setLevel(PICOWS_DEBUG_LL)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+
+picows_logger = logging.getLogger("picows")
+picows_logger.setLevel(PICOWS_DEBUG_LL)
+picows_logger.addHandler(file_handler)
 
 class Listener(WSListener):
     """WebSocket listener implementation that handles connection events and message frames.

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List
 from nexustrader.constants import AccountType, ExchangeType, StorageBackend
 from nexustrader.core.entity import RateLimit
@@ -49,7 +49,7 @@ class Config:
     strategy: Strategy
     basic_config: Dict[ExchangeType, BasicConfig]
     public_conn_config: Dict[ExchangeType, List[PublicConnectorConfig]]
-    private_conn_config: Dict[ExchangeType, List[PrivateConnectorConfig]]
+    private_conn_config: Dict[ExchangeType, List[PrivateConnectorConfig]] = field(default_factory=dict)
     zero_mq_signal_config: ZeroMQSignalConfig | None = None
     db_path: str = ".keys/cache.db"
     storage_backend: StorageBackend = StorageBackend.REDIS

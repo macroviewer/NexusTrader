@@ -24,9 +24,6 @@ class Demo(Strategy):
         self.subscribe_kline(symbols=symbols, interval=KlineInterval.MINUTE_1)
         self.subscribe_bookl1(symbols=symbols)
         
-    def on_kline(self, kline: Kline):
-        print(kline)
-        
 
 config = Config(
     strategy_id="subscribe_klines_binance",
@@ -46,13 +43,13 @@ config = Config(
             )
         ]
     },
-    private_conn_config={
-        ExchangeType.BINANCE: [
-            PrivateConnectorConfig(
-                account_type=BinanceAccountType.USD_M_FUTURE,
-            )
-        ]
-    }
+    # private_conn_config={
+    #     ExchangeType.BINANCE: [
+    #         PrivateConnectorConfig(
+    #             account_type=BinanceAccountType.USD_M_FUTURE,
+    #         )
+    #     ]
+    # }
 )
 
 engine = Engine(config)
