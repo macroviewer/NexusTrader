@@ -66,11 +66,11 @@ class BookL1(Struct, gc=False):
     bid_size: float
     ask_size: float
     timestamp: int
-    
+
     @property
     def mid(self) -> float:
         return (self.bid + self.ask) / 2
-    
+
     @property
     def spread(self) -> float:
         return self.ask - self.bid
@@ -101,8 +101,8 @@ class Kline(Struct, gc=False, kw_only=True):
     low: float
     close: float
     volume: float
-    taker_volume: float | None = None # only for binance
     quote_volume: float | None = None # only for binance and okx
+    taker_volume: float | None = None # only for binance
     taker_quote_volume: float | None = None # only for binance
     start: int
     timestamp: int
@@ -209,7 +209,7 @@ class Order(Struct):
             OrderStatus.PARTIALLY_FILLED,
             OrderStatus.ACCEPTED,
         ]
-    
+
     @property
     def on_flight(self) -> bool:
         return self.status in [
@@ -217,50 +217,63 @@ class Order(Struct):
             OrderStatus.CANCELING,
         ]
 
+    @property
+    def is_buy(self) -> bool:
+        return self.side == OrderSide.BUY
+
+    @property
+    def is_sell(self) -> bool:
+        return self.side == OrderSide.SELL
+
 
 class AlgoOrder(Struct, kw_only=True):
     symbol: str
-    uuid: str # start with "ALGO-"
+    uuid: str  # start with "ALGO-"
     side: OrderSide
     amount: Optional[Decimal] = None
     duration: int
     wait: int
     status: AlgoOrderStatus
     exchange: ExchangeType
-    timestamp: int 
-    orders: List[str] = field(default_factory=list) # [uuid1, uuid2, ...]
+    timestamp: int
+    orders: List[str] = field(default_factory=list)  # [uuid1, uuid2, ...]
     position_side: PositionSide | None = None
     filled: Optional[Decimal] = None
     cost: Optional[float] = None
     average: Optional[float] = None
-    
+
     @property
     def success(self) -> bool:
         return not self.is_failed
-    
+
     @property
     def is_running(self) -> bool:
         return self.status == AlgoOrderStatus.RUNNING
-    
+
     @property
     def is_finished(self) -> bool:
         return self.status == AlgoOrderStatus.FINISHED
-    
+
     @property
     def is_canceled(self) -> bool:
         return self.status == AlgoOrderStatus.CANCELED
-    
+
     @property
     def is_failed(self) -> bool:
         return self.status == AlgoOrderStatus.FAILED
-    
+
     @property
     def is_closed(self) -> bool:
-        return self.status in [AlgoOrderStatus.CANCELED, AlgoOrderStatus.FAILED, AlgoOrderStatus.FINISHED]
-    
+        return self.status in [
+            AlgoOrderStatus.CANCELED,
+            AlgoOrderStatus.FAILED,
+            AlgoOrderStatus.FINISHED,
+        ]
+
     @property
     def is_opened(self) -> bool:
         return self.status in [AlgoOrderStatus.RUNNING, AlgoOrderStatus.CANCELING]
+
 
 class Balance(Struct):
     """
@@ -300,6 +313,20 @@ class AccountBalance(Struct):
     def _apply(self, balances: List[Balance]):
         for balance in balances:
             self.balances[balance.asset] = balance
+
+    def _update_free(self, asset: str, amount: Decimal):
+        if asset not in self.balances:
+            raise ValueError(
+                f"Asset {asset} not found in balances. Please add it in MockConnectorConfig"
+            )
+        self.balances[asset].free += amount
+
+    def _update_locked(self, asset: str, amount: Decimal):
+        if asset not in self.balances:
+            raise ValueError(
+                f"Asset {asset} not found in balances. Please add it in MockConnectorConfig"
+            )
+        self.balances[asset].locked += amount
 
     @property
     def balance_total(self) -> Dict[str, Decimal]:
@@ -434,18 +461,18 @@ class Position(Struct):
     side: Optional[PositionSide] = None
     unrealized_pnl: float = 0
     realized_pnl: float = 0
-    
+
     @property
     def amount(self, contract_size: Decimal = Decimal("1")) -> Decimal:
         return abs(self.signed_amount) * contract_size
 
     @property
-    def is_open(self) -> bool:
-        return self.amount != 0
+    def is_opened(self) -> bool:
+        return self.amount != Decimal("0")
 
     @property
     def is_closed(self) -> bool:
-        return not self.is_open
+        return not self.is_opened
 
     @property
     def is_long(self) -> bool:
@@ -454,5 +481,3 @@ class Position(Struct):
     @property
     def is_short(self) -> bool:
         return self.side == PositionSide.SHORT
-
-

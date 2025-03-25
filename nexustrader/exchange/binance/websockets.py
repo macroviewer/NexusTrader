@@ -19,11 +19,10 @@ class BinanceWSClient(WSClient):
         url = account_type.ws_url
         super().__init__(
             url,
-            limiter=AsyncLimiter(max_rate=1, time_period=1),
+            limiter=AsyncLimiter(max_rate=2, time_period=1),
             handler=handler,
             task_manager=task_manager,
-            ping_idle_timeout=6,
-            ping_reply_timeout=3,
+            enable_auto_ping=False,
         )
     
     async def _send_payload(self, params: List[str], chunk_size: int = 50):
@@ -114,4 +113,3 @@ class BinanceWSClient(WSClient):
 
     async def _resubscribe(self):
         await self._send_payload(self._subscriptions)
-

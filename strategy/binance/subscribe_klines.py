@@ -1,5 +1,5 @@
 from nexustrader.constants import settings
-from nexustrader.config import Config, PublicConnectorConfig, PrivateConnectorConfig, BasicConfig
+from nexustrader.config import Config, PublicConnectorConfig, BasicConfig
 from nexustrader.strategy import Strategy
 from nexustrader.constants import ExchangeType, KlineInterval
 from nexustrader.exchange.binance import BinanceAccountType
@@ -23,7 +23,6 @@ class Demo(Strategy):
         symbols = self.linear_info(exchange=ExchangeType.BINANCE, quote="USDT")
         self.subscribe_kline(symbols=symbols, interval=KlineInterval.MINUTE_1)
         self.subscribe_bookl1(symbols=symbols)
-        
 
 config = Config(
     strategy_id="subscribe_klines_binance",
@@ -43,13 +42,6 @@ config = Config(
             )
         ]
     },
-    # private_conn_config={
-    #     ExchangeType.BINANCE: [
-    #         PrivateConnectorConfig(
-    #             account_type=BinanceAccountType.USD_M_FUTURE,
-    #         )
-    #     ]
-    # }
 )
 
 engine = Engine(config)
