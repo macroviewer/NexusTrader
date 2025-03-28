@@ -41,6 +41,20 @@ class ZeroMQSignalConfig:
     """
     socket: Socket
     
+@dataclass
+class MockConnectorConfig:
+    initial_balance: Dict[str, float | int]
+    account_type: AccountType
+    fee_rate: float = 0.0005
+    quote_currency: str = "USDT"
+    overwrite_balance: bool = False
+    overwrite_position: bool = False
+    update_interval: int = 60
+    leverage: float = 1.0
+    
+    def __post_init__(self):
+        if not self.account_type.is_mock:
+            raise ValueError(f"Invalid account type: {self.account_type} for mock connector. Must be `LINEAR_MOCK`, `INVERSE_MOCK`, or `SPOT_MOCK`.")
 
 @dataclass
 class Config:
@@ -49,9 +63,27 @@ class Config:
     strategy: Strategy
     basic_config: Dict[ExchangeType, BasicConfig]
     public_conn_config: Dict[ExchangeType, List[PublicConnectorConfig]]
-    private_conn_config: Dict[ExchangeType, List[PrivateConnectorConfig]] = field(default_factory=dict)
+    private_conn_config: Dict[ExchangeType, List[PrivateConnectorConfig | MockConnectorConfig]] = field(default_factory=dict)
     zero_mq_signal_config: ZeroMQSignalConfig | None = None
     db_path: str = ".keys/cache.db"
-    storage_backend: StorageBackend = StorageBackend.REDIS
+    storage_backend: StorageBackend = StorageBackend.SQLITE
     cache_sync_interval: int = 60
     cache_expired_time: int = 3600
+    is_mock: bool = False
+    
+    def __post_init__(self):
+        # Check if any connector is mock, then all must be mock
+        has_mock = False
+        has_private = False
+        
+        for connectors in self.private_conn_config.values():
+            for connector in connectors:
+                if isinstance(connector, MockConnectorConfig):
+                    has_mock = True
+                elif isinstance(connector, PrivateConnectorConfig):
+                    has_private = True
+                    
+                if has_mock and has_private:
+                    raise ValueError("Cannot mix mock and real private connectors. Use either all mock or all private connectors.")
+                    
+        self.is_mock = has_mock

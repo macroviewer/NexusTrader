@@ -461,7 +461,8 @@ class BinancePrivateConnector(PrivateConnector):
                     entry_price=float(position.entryPrice),
                     unrealized_pnl=float(position.unrealizedProfit),
                 )
-                self._cache._apply_position(position)
+                if position.is_opened:
+                    self._cache._apply_position(position)
 
     async def _init_position(self):
         # NOTE: Implement in `_init_account_balance`
@@ -883,7 +884,7 @@ class BinancePrivateConnector(PrivateConnector):
         side: OrderSide,
         type: OrderType,
         amount: Decimal,
-        price: Decimal = None,
+        price: Decimal | None = None,
         time_in_force: TimeInForce = TimeInForce.GTC,
         position_side: PositionSide | None = None,
         **kwargs,

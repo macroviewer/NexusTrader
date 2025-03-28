@@ -51,7 +51,19 @@ services:
       - '3001:3000'
     # adding the mount volume point which we create earlier
     volumes:
-      - '/var/lib/grafana-data :/var/lib/grafana'
+      - '/data/grafana-data:/var/lib/grafana'
+
+  timescaledb:
+    image: timescale/timescaledb-ha:pg17
+    container_name: timescaledb
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ${NEXUS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${NEXUS_POSTGRES_PASSWORD}
+    volumes:
+      - /data/timescaledb:/var/lib/postgresql/data
 
 
 volumes:
